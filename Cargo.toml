@@ -1,0 +1,11 @@
+[package]
+name = "bevy_int"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+r3_core = { path = "../r3_core", features = ["ecs"] }
+bevy_ecs = "0.17.2"
+
+[dev-dependencies]
+futures = "0.3.31"
