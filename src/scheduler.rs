@@ -68,7 +68,6 @@ pub struct Scheduler {
 
     update: TimeStep,
     update_schedules: Vec<Schedule>,
-    render_schedules: Vec<Schedule>,
     fixed_update: FixedTimeStep,
     fixed_update_schedules: Vec<Schedule>,
 }
@@ -86,7 +85,6 @@ impl Scheduler {
 
             update: TimeStep::new(),
             update_schedules: vec![Schedule::new(Update)],
-            render_schedules: vec![],
             fixed_update: FixedTimeStep::new(fixed_update),
             fixed_update_schedules: vec![Schedule::new(FixedUpdate)],
         }
@@ -94,10 +92,6 @@ impl Scheduler {
 
     pub fn initialize(&mut self) -> Result<(), ScheduleBuildError> {
         for schedule in self.update_schedules.iter_mut() {
-            schedule.initialize(&mut self.world)?;
-        }
-
-        for schedule in self.render_schedules.iter_mut() {
             schedule.initialize(&mut self.world)?;
         }
 
@@ -124,12 +118,6 @@ impl Scheduler {
         }
     }
 
-    pub fn render(&mut self) {
-        for schedule in self.render_schedules.iter_mut() {
-            schedule.run(&mut self.world);
-        }
-    }
-
     #[inline(always)]
     pub const fn world(&self) -> &World {
         &self.world
@@ -143,13 +131,6 @@ impl Scheduler {
     #[inline(always)]
     pub fn get_update_schedule(&mut self, label: impl ScheduleLabel) -> Option<&mut Schedule> {
         self.update_schedules
-            .iter_mut()
-            .find(|schedule| schedule.label() == label.intern())
-    }
-
-    #[inline(always)]
-    pub fn get_render_schedule(&mut self, label: impl ScheduleLabel) -> Option<&mut Schedule> {
-        self.render_schedules
             .iter_mut()
             .find(|schedule| schedule.label() == label.intern())
     }
@@ -171,15 +152,6 @@ impl Scheduler {
     #[inline(always)]
     pub fn add_update_schedule(&mut self, schedule: Schedule) {
         self.update_schedules.push(schedule);
-    }
-
-    #[inline(always)]
-    pub fn add_pre_render_schedule(&mut self, schedule: Schedule) {
-        self.render_schedules.insert(0, schedule);
-    }
-    #[inline(always)]
-    pub fn add_render_schedule(&mut self, schedule: Schedule) {
-        self.render_schedules.push(schedule);
     }
 
     #[inline(always)]
